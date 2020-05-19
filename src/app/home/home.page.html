@@ -8,9 +8,16 @@
 
 <ion-content>
   <ion-grid>
+
+    <ion-row>
+      <ion-column>
+        <ion-title [(ngModel)]="step">Estamos en el paso {{step}}</ion-title>
+      </ion-column>
+    </ion-row>
+
     <ion-row>
       <ion-col>
-        <ion-label>Instrucciones de Uso</ion-label>
+        <ion-label>Descripcion Paso</ion-label>
       </ion-col>
     </ion-row>
 
@@ -26,26 +33,85 @@
         </ul>
       </ion-col>
     </ion-row>
-      
+
+
+
     <ion-row>
-      <ion-col>
-          <ion-label position="fixed">Regla Inicial</ion-label>
+      <ion-col size="12">
+          <ion-label position="fixed">Regla 0</ion-label>
           <ion-item>
-            <ion-input></ion-input>
+            <ion-input [(ngModel)]="v0" disabled="inputs">{{v0}}</ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input [(ngModel)]="R0">{{R0}}</ion-input>
+            <ion-button disabled="b0" slot="end">Regla 0</ion-button>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+
+      
+  <form [formGroup]="rulesForm">
+    <ion-row>
+      <ion-col size="12">
+        <ion-label position="fixed">Regla Inicial</ion-label>
+        <ion-item>
+            <ion-input name disabled="inputs" formControlName="Rule1"></ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input formControlName="Var1"></ion-input>
+            <ion-button disabled="b1" slot="end" (click)="apply(1)">Regla 1</ion-button>
           </ion-item>
         </ion-col>
     </ion-row>
 
     <ion-row>
-      <ion-col>
-          <ion-label position="fixed">Reglas del GLC</ion-label>
-          <ion-item>
-            <ion-textarea rows="6" cols="20" placeholder="Ingresa las demas reglas..."></ion-textarea>
+      <ion-col size="12">
+        <ion-label position="fixed">Regla 2</ion-label>
+        <ion-item>
+            
+            <ion-input disabled="inputs" formControlName="Rule2"></ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input formControlName="Var2"></ion-input>
+            <ion-button disabled="b2" slot="end" (click)="apply(2)">Regla 2</ion-button>
           </ion-item>
         </ion-col>
     </ion-row>
-  
-    <ion-button expand="block">CONVERTIR</ion-button>
-  
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-label position="fixed">Regla 3</ion-label>
+        <ion-item>
+            
+            <ion-input disabled="inputs" formControlName="Rule3"></ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input formControlName="Var3"></ion-input>
+            <ion-button disabled="b3" slot="end" (click)="apply(3)">Regla 3</ion-button>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-label position="fixed">Regla 4</ion-label>
+        <ion-item>
+           
+            <ion-input disabled="inputs" formControlName="Rule4"></ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input formControlName="Var4"></ion-input>
+            <ion-button disabled="b4" slot="end" (click)="apply(4)">Regla 4</ion-button>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+
+
+    <ion-row>
+      <ion-col size="12">
+        <ion-label position="fixed">Regla 5</ion-label>
+        <ion-item>
+            
+            <ion-input disabled="inputs" formControlName="Rule5"></ion-input><ion-icon name="arrow-forward-outline"></ion-icon><ion-input  formControlName="Var5"></ion-input>
+            <ion-button disabled="b5" slot="end" (click)="apply(5)">Regla 5</ion-button>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+
+    
+    <ion-button disabled="start" type="submit" expand="block" (click)="onSubmit()">START</ion-button>
+    <ion-button  disabled="continue" expand="block" (click)="continue()">CONTINUE</ion-button>
+    <ion-button  disabled="reset" expand="block" (click)="restart()">RESET</ion-button>
+
+  </form>
+  <!-- <ion-label>patchform , cambiar valor de la forma hacer un patchform y actualizar la forma y eso hace que se actualice el valor del input</ion-label></ion-label>
+   -->
   </ion-grid>
 </ion-content>
+
+
