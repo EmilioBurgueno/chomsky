@@ -1,20 +1,51 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      Forma Normal de Chomsky
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-label>Instrucciones de Uso</ion-label>
+      </ion-col>
+    </ion-row>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+    <ion-row>
+      <ion-col>
+        <ul class="instructions">
+          <li>Paso 1</li>
+          <li>Paso 2</li>
+          <li>Paso 3</li>
+          <li>Paso 4</li>
+          <li>Paso 5</li>
+          <li>Paso 6</li>
+        </ul>
+      </ion-col>
+    </ion-row>
+      
+    <ion-row>
+      <ion-col>
+          <ion-label position="fixed">Regla Inicial</ion-label>
+          <ion-item>
+            <ion-input></ion-input>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+          <ion-label position="fixed">Reglas del GLC</ion-label>
+          <ion-item>
+            <ion-textarea rows="6" cols="20" placeholder="Ingresa las demas reglas..."></ion-textarea>
+          </ion-item>
+        </ion-col>
+    </ion-row>
+  
+    <ion-button expand="block">CONVERTIR</ion-button>
+  
+  </ion-grid>
 </ion-content>

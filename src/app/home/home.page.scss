@@ -25,3 +25,17 @@
 #container a {
   text-decoration: none;
 }
+
+.instructions {
+  list-style-type: disc;
+}
+
+ion-content{
+  ion-grid{
+    ion-row{
+      
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  }
+}
