@@ -11,18 +11,18 @@ import { stringify } from 'querystring';
 export class HomePage implements OnInit {
 
   regla: any;
-  step: number;
+  step = 0;
   rulesForm: FormGroup;
-  Rules: [string[]]
-  R0; R1; R2; R3; R4; R5;
-  v0; v1; v2; v3; v4; v5;
-  b0 = true; b1 = true; b2 = true; b3 = true; b4 = true; b5 = true;
+  Rules = [[]] as [string[]];
+  cRules = [""] as string[];
+  Vars = [""] as string[];
+  Buttons = [true, true, true, true, true, true] as boolean[];
   inputs = false;
-  reset = true;
-  continue = true;
-  start = false;
+  breset = true;
+  bcontinue = true;
+  bstart = false;
 
-  constructor(private alertCtrl: AlertController) {}
+  constructor(private alertCtrl: AlertController) { }
 
   ngOnInit() {
     this.initForm();
@@ -35,12 +35,42 @@ export class HomePage implements OnInit {
       Rule3: new FormControl(null),
       Rule4: new FormControl(null),
       Rule5: new FormControl(null),
-      Var1: new FormControl(null, [Validators.required]),
+      Var1: new FormControl(null, [Validators.required, Validators.pattern('[A-Z]'), Validators.maxLength(1)]),
       Var2: new FormControl(null, [Validators.pattern('[A-Z]'), Validators.maxLength(1)]),
       Var3: new FormControl(null, [Validators.pattern('[A-Z]'), Validators.maxLength(1)]),
       Var4: new FormControl(null, [Validators.pattern('[A-Z]'), Validators.maxLength(1)]),
       Var5: new FormControl(null, [Validators.pattern('[A-Z]'), Validators.maxLength(1)])
     });
+  }
+
+  patchForm() {
+    this.rulesForm.patchValue({
+      Rule1: this.cRules[1],
+      Rule2: this.cRules[2],
+      Rule3: this.cRules[3],
+      Rule4: this.cRules[4],
+      Rule5: this.cRules[5],
+      Var1: this.Vars[1],
+      Var2: this.Vars[2],
+      Var3: this.Vars[3],
+      Var4: this.Vars[4],
+      Var5: this.Vars[5]
+    })
+  }
+
+  eraseForm() {
+    this.rulesForm.patchValue({
+      Rule1: "",
+      Rule2: "",
+      Rule3: "",
+      Rule4: "",
+      Rule5: "",
+      Var1: "",
+      Var2: "",
+      Var3: "",
+      Var4: "",
+      Var5: ""
+    })
   }
 
   onSubmit() {
@@ -50,23 +80,28 @@ export class HomePage implements OnInit {
       const rule3 = this.rulesForm.controls.Rule3.value as string;
       const rule4 = this.rulesForm.controls.Rule4.value as string;
       const rule5 = this.rulesForm.controls.Rule5.value as string;
-      this.v1 = this.rulesForm.controls.Var1.value as string;
-      this.v2 = this.rulesForm.controls.Var2.value as string;
-      this.v3 = this.rulesForm.controls.Var3.value as string;
-      this.v4 = this.rulesForm.controls.Var4.value as string;
-      this.v5 = this.rulesForm.controls.Var5.value as string;
+      const v1 = this.rulesForm.controls.Var1.value as string;
+      const v2 = this.rulesForm.controls.Var2.value as string;
+      const v3 = this.rulesForm.controls.Var3.value as string;
+      const v4 = this.rulesForm.controls.Var4.value as string;
+      const v5 = this.rulesForm.controls.Var5.value as string;
 
-      const rules = [rule1, rule2, rule3, rule4, rule5];
-      for (let index = 1; index < rules.length+1; index++) {
+      const rules = [null, rule1, rule2, rule3, rule4, rule5];
+      this.Vars = ["", v1, v2, v3, v4, v5]
+      this.Rules.pop();
+      for (let index = 0; index < rules.length; index++) {
         if (rules[index] != null) {
-          this.Rules[index] = rules[index].split('|');
+          this.Rules.push(rules[index].split('|'));
+        } else {
+          this.Rules.push(null)
         }
       }
 
+      this.breset = false;
+      this.bstart = true;
+      this.Buttons[0] = false;
+      this.inputs = true;
       this.step = 1;
-      this.reset = false;
-      this.continue = false;
-      this.start = true;
 
     } else {
       this.presentAlert('¡Informacion incompleta!', 'Por favor rellenar los campos correctamente');
@@ -74,21 +109,87 @@ export class HomePage implements OnInit {
   }
 
   apply(rulenum: number) {
-    switch(this.step) {
+    switch (this.step) {
       case 1:
-        this.v0 = "S0"
-        this.Rules[0] = ["S"]
-        this.R0 = "S"
+        this.Vars[0] = "S0";
+        this.Rules[0] = [this.Vars[1]];
+        this.cRules[0] = this.Vars[1];
+        this.Buttons[0] = true;
+        this.bcontinue = false;
         break;
       case 2:
+        const vari = this.Vars[rulenum];
         const rule = this.Rules[rulenum];
-        const lambda = rule.indexOf("µ")
+        const lambda = rule.indexOf("µ");
         rule.splice(lambda, 1)
         for (let i = 0; i < this.Rules.length; i++) {
-          if (i != rulenum) {
+          this.cRules[i] = ""
+          if (this.Rules[i] != null) {
             for (let j = 0; j < this.Rules[i].length; j++) {
-              //if (this.Rules[i][j].includes()){}
+              if (this.Rules[i][j].includes(vari)) {
+                if (this.Rules[i][j] === vari) {
+                  if (i == rulenum) {
+                    console.log("Regla uniciclica");
+                  } else {
+                    this.Rules[i].push("µ");
+                  }
+                } else {
+                  const temp = this.Rules[i][j].split("");
+                  const itemp = temp.indexOf(vari);
+                  temp.splice(itemp, 1);
+                  var stemp = "";
+                  for (let k = 0; k < temp.length; k++) {
+                    stemp = stemp.concat(temp[k]);
+                  }
+                  this.Rules[i].push(stemp);
+                }
+              }
+              if (j != 0 ) {
+                this.cRules[i] = this.cRules[i].concat("|");
+              }
+              this.cRules[i] = this.cRules[i].concat(this.Rules[i][j]);
             }
+          }
+        }
+        this.patchForm();
+        this.check();
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+    }
+  }
+
+  continue() {
+    this.step += 1
+    this.check()
+  }
+
+  reset() {
+    this.eraseForm();
+    this.cRules = [""];
+    this.Vars = [""];
+    this.Rules = [[]];
+    this.Buttons = [true, true, true, true, true, true];
+    this.inputs = false;
+    this.breset = true;
+    this.bcontinue = true;
+    this.bstart = false;
+    this.step = 0;
+  }
+
+  check() {
+    switch (this.step) {
+      case 2:
+        this.bcontinue = false;
+        for (let i = 1; i < this.Rules.length; i++) {
+          this.Buttons[i] = true;
+          if (this.Rules[i] != null && this.Rules[i].includes('µ')) {
+            this.Buttons[i] = false;
+            this.bcontinue = true;
           }
         }
         break;

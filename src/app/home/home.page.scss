@@ -33,9 +33,20 @@
 ion-content{
   ion-grid{
     ion-row{
-      
       margin-left: 10px;
       margin-right: 10px;
     }
   }
+}
+
+.center {
+  text-align: center;
+}
+
+.arrow {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.vars {
+  max-width: 30px;
 }
