@@ -118,8 +118,8 @@ export class HomePage implements OnInit {
         this.bcontinue = false;
         break;
       case 2:
-        const vari = this.Vars[rulenum];
-        const rule = this.Rules[rulenum];
+        var vari = this.Vars[rulenum];
+        var rule = this.Rules[rulenum];
         const lambda = rule.indexOf("µ");
         rule.splice(lambda, 1)
         for (let i = 0; i < this.Rules.length; i++) {
@@ -135,13 +135,32 @@ export class HomePage implements OnInit {
                   }
                 } else {
                   const temp = this.Rules[i][j].split("");
-                  const itemp = temp.indexOf(vari);
-                  temp.splice(itemp, 1);
-                  var stemp = "";
+                  var tVIAll = new Array<number>();
                   for (let k = 0; k < temp.length; k++) {
-                    stemp = stemp.concat(temp[k]);
+                    if (temp[k] == vari) {
+                      tVIAll.push(k);
+                    }
                   }
-                  this.Rules[i].push(stemp);
+                  const count = tVIAll.length;
+                  for (let k = 0; k < (2 ** count) - 1; k++) {
+                    var bcount = k.toString(2);
+                    bcount = '0'.repeat(count - bcount.length) + bcount
+                    var ntemp = this.Rules[i][j].split("");
+                    let shift = 0
+                    for (let l = 0; l < bcount.length; l++) {
+                      if (bcount[l] == '0'){
+                        ntemp.splice(tVIAll[l]-shift, 1);
+                        shift++;
+                      }
+                    }
+                    var stemp = "";
+                    for (let l = 0; l < ntemp.length; l++) {
+                      stemp = stemp.concat(ntemp[l]);
+                    }
+                    if (!this.Rules[i].includes(stemp)) {
+                      this.Rules[i].push(stemp);
+                    }
+                  }
                 }
               }
               if (j != 0 ) {
@@ -155,6 +174,29 @@ export class HomePage implements OnInit {
         this.check();
         break;
       case 3:
+        //Checar si existe variable sola y mayuscula
+        var vari = this.Vars[rulenum];
+        var rule = this.Rules[rulenum];
+        for (let i = 0; i < rule.length; i++) {
+            if (rule.length == 1 && rule[i] === rule[i].toUpperCase() && rule[i] !== rule[i].toLowerCase()){
+              rule.splice(i, 1)
+              if (rule[i] !== this.Vars[rulenum]) {
+                //Reemplzar con la igualdad de la variable
+                for(let k = 0;k < this.Rules.length;k++) {
+                  if(this.Vars[k] === rule[i]){
+                    //this.Rule
+                    rule.concat(this.Rules[k])
+                  }
+                }
+              }
+            }
+            if (i != 0 ) {
+              this.cRules[rulenum] = this.cRules[rulenum].concat("|");
+            }
+            this.cRules[rulenum] = this.cRules[rulenum].concat(this.Rules[rulenum][i]);
+        }
+        this.patchForm();
+        this.check();
         break;
       case 4:
         break;
@@ -194,8 +236,30 @@ export class HomePage implements OnInit {
         }
         break;
       case 3:
+        this.bcontinue = false;
+        for (let i = 0; i < this.Rules.length; i++) {
+          this.Buttons[i] = true;
+          if (this.Rules[i] != null) {
+            for (let j = 0; j < this.Rules[i].length; j++) {
+              if (this.Rules[i][j].length == 1 && this.Rules[i][j] === this.Rules[i][j].toUpperCase() && this.Rules[i][j] !== this.Rules[i][j].toLowerCase()) {
+                this.Buttons[i] = false;
+                this.bcontinue = true;
+              }
+            }
+          }
+        }
         break;
       case 4:
+        this.bcontinue = false;
+        for (let i = 0; i < this.Rules.length; i++) {
+          this.Buttons[i] = true;
+          if (this.Rules[i] != null) {
+            if (this.Rules[i].some(x => x.toLowerCase() === x) && this.Rules[i].length >= 2) {
+              this.Buttons[i] = false;
+              this.bcontinue = true;
+            }
+          }
+        }
         break;
       case 5:
         break;
