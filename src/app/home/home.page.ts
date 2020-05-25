@@ -13,9 +13,15 @@ export class HomePage implements OnInit {
   regla: any;
   step = 0;
   rulesForm: FormGroup;
+  alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
   Rules = [[]] as [string[]];
   cRules = [""] as string[];
   Vars = [""] as string[];
+
+  extraRules = [""] as string[];
+  extraVars = [""] as string[];
+
   Buttons = [true, true, true, true, true, true] as boolean[];
   inputs = false;
   breset = true;
@@ -86,23 +92,34 @@ export class HomePage implements OnInit {
       const v4 = this.rulesForm.controls.Var4.value as string;
       const v5 = this.rulesForm.controls.Var5.value as string;
 
-      const rules = [null, rule1, rule2, rule3, rule4, rule5];
-      this.Vars = ["", v1, v2, v3, v4, v5]
-      this.Rules.pop();
-      for (let index = 0; index < rules.length; index++) {
-        if (rules[index] != null) {
-          this.Rules.push(rules[index].split('|'));
-        } else {
-          this.Rules.push(null)
-        }
-      }
-
       this.breset = false;
       this.bstart = true;
       this.Buttons[0] = false;
       this.inputs = true;
       this.step = 1;
 
+      const rules = [null, rule1, rule2, rule3, rule4, rule5];
+      this.Vars = ["", v1, v2, v3, v4, v5]
+      this.Rules.pop();
+      this.extraRules.pop();
+      this.extraVars.pop();
+      for (let i = 0; i < rules.length; i++) {
+        if (rules[i] != null) {
+          this.Rules.push(rules[i].split('|'));
+          this.cRules[i] = this.Rules[i].join('|');
+        } else {
+          this.Rules.push(null);
+        }
+        if (this.Vars[i] != null && this.Vars[i] != "") {
+          if (this.alphabet.includes(this.Vars[i])) {
+            var ri = this.alphabet.indexOf(this.Vars[i]);
+            this.alphabet.splice(ri, 1);
+          } else {
+            this.presentAlert('¡Informacion incorrecta!', 'Hay variables repetidas. Usa variables unicas');
+            this.reset(false);
+          }
+        }
+      }
     } else {
       this.presentAlert('¡Informacion incompleta!', 'Por favor rellenar los campos correctamente');
     }
@@ -148,65 +165,119 @@ export class HomePage implements OnInit {
                     var ntemp = this.Rules[i][j].split("");
                     let shift = 0
                     for (let l = 0; l < bcount.length; l++) {
-                      if (bcount[l] == '0'){
-                        ntemp.splice(tVIAll[l]-shift, 1);
+                      if (bcount[l] == '0') {
+                        ntemp.splice(tVIAll[l] - shift, 1);
                         shift++;
                       }
                     }
-                    var stemp = "";
-                    for (let l = 0; l < ntemp.length; l++) {
-                      stemp = stemp.concat(ntemp[l]);
-                    }
+                    var stemp = ntemp.join("");
                     if (!this.Rules[i].includes(stemp)) {
                       this.Rules[i].push(stemp);
                     }
                   }
                 }
               }
-              if (j != 0 ) {
-                this.cRules[i] = this.cRules[i].concat("|");
-              }
-              this.cRules[i] = this.cRules[i].concat(this.Rules[i][j]);
             }
+            this.cRules[i] = this.Rules[i].join("|");
           }
         }
         this.patchForm();
         this.check();
         break;
       case 3:
-        //Checar si existe variable sola y mayuscula
         var vari = this.Vars[rulenum];
         var rule = this.Rules[rulenum];
+        this.cRules[rulenum] = ""
+        var pass = true;
         for (let i = 0; i < rule.length; i++) {
-            if (rule.length == 1 && rule[i] === rule[i].toUpperCase() && rule[i] !== rule[i].toLowerCase()){
-              if (rule[i] !== vari) {
-                for(let k = 0;k < this.Rules.length;k++) {
-                  if(this.Rules[k] !== null){
-                    if(this.Vars[k] == rule[i]){
-                      console.log(this.Rules[k])
-                      console.log(rule)
-                      rule = rule.concat(this.Rules[k])
-                      console.log(rule)
-                    }
+          if (rule[i].length == 1 && rule[i] === rule[i].toUpperCase() && rule[i] !== rule[i].toLowerCase() && pass) {
+            if (rule[i] !== vari) {
+              for (let k = 0; k < this.Rules.length; k++) {
+                if (this.Rules[k] !== null) {
+                  if (this.Vars[k] == rule[i]) {
+                    this.Rules[k].forEach(x => {
+                      if (!rule.includes(x)) {
+                        rule = rule.concat(x)
+                      }
+                    });
+                    pass = false;
                   }
                 }
               }
-              rule.splice(i, 1)
-              
             }
-            this.Rules[rulenum] = rule
-            if (i != 0 ) {
-              this.cRules[rulenum] = this.cRules[rulenum].concat("|");
-            }
-            this.cRules[rulenum] = this.cRules[rulenum].concat(this.Rules[rulenum][i]);
+            rule.splice(i, 1)
+          }
         }
+        this.Rules[rulenum] = rule
+        this.cRules[rulenum] = this.Rules[rulenum].join("|");
         this.patchForm();
         this.check();
         break;
       case 4:
+        var vari = this.Vars[rulenum];
+        var rule = this.Rules[rulenum];
+        for (let i = 0; i < rule.length; i++) {
+          if (rule[i].length != 1) {
+            var sArr = [...rule[i]]
+            for (let j = 0; j < sArr.length; j++) {
+              if (sArr[j] == sArr[j].toLowerCase()) {
+                sArr[j] = this.newRule(rule[i][j]);
+              }
+            }
+            rule[i] = sArr.join("");
+          }
+        }
+        this.Rules[rulenum] = rule
+        this.cRules[rulenum] = this.Rules[rulenum].join("|");
+        this.patchForm();
+        this.check();
         break;
       case 5:
+        var vari = this.Vars[rulenum];
+        var rule = this.Rules[rulenum];
+        for (let i = 0; i < rule.length; i++) {
+          if (rule[i].length > 2) {
+              var newChars = rule[i].slice(-2)
+              const tempVar = this.newRule(newChars)
+              var sArr = [...rule[i]]
+              sArr.splice(-2, 2)
+              rule[i] = sArr.join("");
+              rule[i] = rule[i].concat(tempVar)
+          }
+        }
+        this.Rules[rulenum] = rule
+        this.cRules[rulenum] = this.Rules[rulenum].join("|");
+        this.patchForm();
+        this.check();
         break;
+    }
+  }
+
+  checkVarExists(extraChars: string): string {
+    for (let i = 0; i < this.Rules.length; i++) {
+      if (this.Rules[i] != null) {
+        if (this.Rules[i].length == 1 && this.Rules[i][0] == extraChars) {
+          return this.Vars[i];
+        }
+      }
+    }
+    for (let i = 0; i < this.extraRules.length; i++) {
+      if (this.extraRules[i] == extraChars) {
+        return this.extraVars[i];
+      }
+    }
+    return null
+  }
+
+  newRule(extraChars: string): string {
+    const check = this.checkVarExists(extraChars)
+    if (check == null) {
+      const newVar = this.alphabet.shift();
+      this.extraVars.push(newVar);
+      this.extraRules.push(extraChars);
+      return newVar
+    } else {
+      return check
     }
   }
 
@@ -215,11 +286,16 @@ export class HomePage implements OnInit {
     this.check()
   }
 
-  reset() {
-    this.eraseForm();
+  reset(hard: boolean) {
+    if (hard) {
+      this.eraseForm();
+    }
+    this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    this.Rules = [[]];
     this.cRules = [""];
     this.Vars = [""];
-    this.Rules = [[]];
+    this.extraRules = [];
+    this.extraVars = [""];
     this.Buttons = [true, true, true, true, true, true];
     this.inputs = false;
     this.breset = true;
@@ -259,14 +335,32 @@ export class HomePage implements OnInit {
         for (let i = 0; i < this.Rules.length; i++) {
           this.Buttons[i] = true;
           if (this.Rules[i] != null) {
-            if (this.Rules[i].some(x => x.toLowerCase() === x) && this.Rules[i].length >= 2) {
-              this.Buttons[i] = false;
-              this.bcontinue = true;
+            for (let j = 0; j < this.Rules[i].length; j++) {
+              if (this.Rules[i][j].length >= 2) {
+                const chArr = [...this.Rules[i][j]]
+                for (let k = 0; k < chArr.length; k++) {
+                  if (chArr[k].toLowerCase() == chArr[k]) {
+                    this.Buttons[i] = false;
+                    this.bcontinue = true;
+                  }
+                }
+              }
             }
           }
         }
         break;
       case 5:
+        for (let i = 0; i < this.Rules.length; i++) {
+          this.Buttons[i] = true;
+          if (this.Rules[i] != null) {
+            for (let j = 0; j < this.Rules[i].length; j++) {
+              if (this.Rules[i][j].length > 2) {
+                this.Buttons[i] = false;
+                this.bcontinue = true;
+              }
+            }
+          }
+        }
         break;
     }
   }
