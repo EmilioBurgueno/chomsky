@@ -179,17 +179,22 @@ export class HomePage implements OnInit {
         var rule = this.Rules[rulenum];
         for (let i = 0; i < rule.length; i++) {
             if (rule.length == 1 && rule[i] === rule[i].toUpperCase() && rule[i] !== rule[i].toLowerCase()){
-              rule.splice(i, 1)
-              if (rule[i] !== this.Vars[rulenum]) {
-                //Reemplzar con la igualdad de la variable
+              if (rule[i] !== vari) {
                 for(let k = 0;k < this.Rules.length;k++) {
-                  if(this.Vars[k] === rule[i]){
-                    //this.Rule
-                    rule.concat(this.Rules[k])
+                  if(this.Rules[k] !== null){
+                    if(this.Vars[k] == rule[i]){
+                      console.log(this.Rules[k])
+                      console.log(rule)
+                      rule = rule.concat(this.Rules[k])
+                      console.log(rule)
+                    }
                   }
                 }
               }
+              rule.splice(i, 1)
+              
             }
+            this.Rules[rulenum] = rule
             if (i != 0 ) {
               this.cRules[rulenum] = this.cRules[rulenum].concat("|");
             }
