@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { stringify } from 'querystring';
 
@@ -10,20 +10,31 @@ import { stringify } from 'querystring';
 })
 export class HomePage implements OnInit {
 
-  regla: any;
+  //Mensaje a imprimir
+  msg = ["Usa los botones laterales para activar o desactivar la regla indicada. Presiona start para comenzar."]
+  //Contador de Steps
   step = 0;
+  //Iniciar Forms
   rulesForm: FormGroup;
+  //Alfabeto 
   alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+  //Inicializar arreglos de variables y reglas
   Rules = [[]] as [string[]];
   cRules = [""] as string[];
   Vars = [""] as string[];
 
+  //Inicializar arreglos de variables y reglas extras
   extraRules = [""] as string[];
   extraVars = [""] as string[];
+  printExtraRules = [[""], [""], []] as [string[], string[], number[]];
 
-  Buttons = [true, true, true, true, true, true] as boolean[];
-  inputs = false;
+  controls = [] as AbstractControl[];
+  required = [false, false, false, false] as boolean[];
+
+  //Seguimiento de botones para habilitarlos o deshabilitarlos
+  Buttons = [true, true, false, false, false, false] as boolean[];
+  inputs = [false, true, true, true, true] as boolean[];
   breset = true;
   bcontinue = true;
   bstart = false;
@@ -32,8 +43,10 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.getControls();
   }
 
+  //Forms de los inputs de Reglas y Variablew
   initForm() {
     this.rulesForm = new FormGroup({
       Rule1: new FormControl(null, [Validators.required]),
@@ -49,6 +62,7 @@ export class HomePage implements OnInit {
     });
   }
 
+  //Update de la forma
   patchForm() {
     this.rulesForm.patchValue({
       Rule1: this.cRules[1],
@@ -64,6 +78,33 @@ export class HomePage implements OnInit {
     })
   }
 
+  //Pseudoupdate para actualizar los validadores
+  pseudoPatchForm() {
+    const rule1 = this.rulesForm.controls.Rule1.value as string;
+    const rule2 = this.rulesForm.controls.Rule2.value as string;
+    const rule3 = this.rulesForm.controls.Rule3.value as string;
+    const rule4 = this.rulesForm.controls.Rule4.value as string;
+    const rule5 = this.rulesForm.controls.Rule5.value as string;
+    const v1 = this.rulesForm.controls.Var1.value as string;
+    const v2 = this.rulesForm.controls.Var2.value as string;
+    const v3 = this.rulesForm.controls.Var3.value as string;
+    const v4 = this.rulesForm.controls.Var4.value as string;
+    const v5 = this.rulesForm.controls.Var5.value as string;
+    this.rulesForm.patchValue({
+      Rule1: rule1,
+      Rule2: rule2,
+      Rule3: rule3,
+      Rule4: rule4,
+      Rule5: rule5,
+      Var1: v1,
+      Var2: v2,
+      Var3: v3,
+      Var4: v4,
+      Var5: v5
+    })
+  }
+
+  //Funcion para borrar todos los campos de la forma
   eraseForm() {
     this.rulesForm.patchValue({
       Rule1: "",
@@ -79,7 +120,30 @@ export class HomePage implements OnInit {
     })
   }
 
+  //Guardar los controles de la forma para poder manejar la validación
+  getControls() {
+    this.controls.push(this.rulesForm.get('Rule2'));
+    this.controls.push(this.rulesForm.get('Rule3'));
+    this.controls.push(this.rulesForm.get('Rule4'));
+    this.controls.push(this.rulesForm.get('Rule5'));
+    this.controls.push(this.rulesForm.get('Var2'));
+    this.controls.push(this.rulesForm.get('Var3'));
+    this.controls.push(this.rulesForm.get('Var4'));
+    this.controls.push(this.rulesForm.get('Var5'));
+  }
+
+  //Aplicar la validacion a los campos y revisar si es correcto o no 
   onSubmit() {
+    console.log(this.rulesForm.controls.Rule1.valid)
+    console.log(this.rulesForm.controls.Rule2.valid)
+    console.log(this.rulesForm.controls.Rule3.valid)
+    console.log(this.rulesForm.controls.Rule4.valid)
+    console.log(this.rulesForm.controls.Rule5.valid)
+    console.log(this.rulesForm.controls.Var1.valid)
+    console.log(this.rulesForm.controls.Var2.valid)
+    console.log(this.rulesForm.controls.Var3.valid)
+    console.log(this.rulesForm.controls.Var4.valid)
+    console.log(this.rulesForm.controls.Var5.valid)
     if (this.rulesForm.valid) {
       const rule1 = this.rulesForm.controls.Rule1.value as string;
       const rule2 = this.rulesForm.controls.Rule2.value as string;
@@ -94,15 +158,18 @@ export class HomePage implements OnInit {
 
       this.breset = false;
       this.bstart = true;
-      this.Buttons[0] = false;
-      this.inputs = true;
+      this.Buttons = [false, true, true, true, true, true];
+      this.inputs = [true, true, true, true, true];
       this.step = 1;
 
+      this.msg = "Usa los botones laterales para interactuar con las reglas./nHaz click en el boton de descripción para saber que se esta haciendo en este paso./nUsa los botones inferiores para continuar o empezar desde 0".split("/n");
       const rules = [null, rule1, rule2, rule3, rule4, rule5];
       this.Vars = ["", v1, v2, v3, v4, v5]
       this.Rules.pop();
       this.extraRules.pop();
       this.extraVars.pop();
+      this.printExtraRules[0].pop();
+      this.printExtraRules[1].pop();
       for (let i = 0; i < rules.length; i++) {
         if (rules[i] != null) {
           this.Rules.push(rules[i].split('|'));
@@ -125,8 +192,29 @@ export class HomePage implements OnInit {
     }
   }
 
+
+  //Aplica las operaciones necesarias para cada paso , separadas en cases para cada paso
   apply(rulenum: number) {
     switch (this.step) {
+      case 0:
+        this.required[rulenum - 2] = !this.required[rulenum - 2];
+        if (this.required[rulenum - 2]) {
+          this.controls[rulenum + 2].setValidators([Validators.required, Validators.pattern('[A-Z]'), Validators.maxLength(1)]);
+          this.controls[rulenum - 2].setValidators([Validators.required]);
+          this.inputs[rulenum - 1] = false;
+          this.msg[0] = "La regla " + rulenum + " se ha activado"
+        } else {
+          this.controls[rulenum + 2].setValidators([Validators.pattern('[A-Z]'), Validators.maxLength(1)]);
+          this.controls[rulenum - 2].setValidators(null);
+          this.controls[rulenum + 2].setValue("");
+          this.controls[rulenum - 2].setValue("");
+          this.inputs[rulenum - 1] = true;
+          this.msg[0] = "La regla " + rulenum + " se ha desactivado"
+        }
+        this.controls[rulenum + 2].updateValueAndValidity;
+        this.controls[rulenum - 2].updateValueAndValidity;
+        this.pseudoPatchForm();
+        break;
       case 1:
         this.Vars[0] = "S0";
         this.Rules[0] = [this.Vars[1]];
@@ -144,33 +232,33 @@ export class HomePage implements OnInit {
           if (this.Rules[i] != null) {
             for (let j = 0; j < this.Rules[i].length; j++) {
               if (this.Rules[i][j].includes(vari)) {
-                if (this.Rules[i][j] === vari) {
-                  if (i == rulenum) {
-                    console.log("Regla uniciclica");
-                  } else {
-                    this.Rules[i].push("µ");
+                const temp = this.Rules[i][j].split("");
+                var tVIAll = new Array<number>();
+                for (let k = 0; k < temp.length; k++) {
+                  if (temp[k] == vari) {
+                    tVIAll.push(k);
                   }
-                } else {
-                  const temp = this.Rules[i][j].split("");
-                  var tVIAll = new Array<number>();
-                  for (let k = 0; k < temp.length; k++) {
-                    if (temp[k] == vari) {
-                      tVIAll.push(k);
+                }
+                const count = tVIAll.length;
+                for (let k = 0; k < (2 ** count) - 1; k++) {
+                  var bcount = k.toString(2);
+                  bcount = '0'.repeat(count - bcount.length) + bcount
+                  var ntemp = this.Rules[i][j].split("");
+                  let shift = 0
+                  for (let l = 0; l < bcount.length; l++) {
+                    if (bcount[l] == '0') {
+                      ntemp.splice(tVIAll[l] - shift, 1);
+                      shift++;
                     }
                   }
-                  const count = tVIAll.length;
-                  for (let k = 0; k < (2 ** count) - 1; k++) {
-                    var bcount = k.toString(2);
-                    bcount = '0'.repeat(count - bcount.length) + bcount
-                    var ntemp = this.Rules[i][j].split("");
-                    let shift = 0
-                    for (let l = 0; l < bcount.length; l++) {
-                      if (bcount[l] == '0') {
-                        ntemp.splice(tVIAll[l] - shift, 1);
-                        shift++;
+                  var stemp = ntemp.join("");
+                  if (stemp == "") {
+                    if (this.Vars[i] != vari) {
+                      if (!this.Rules[i].includes("µ")) {
+                        this.Rules[i].push("µ");
                       }
                     }
-                    var stemp = ntemp.join("");
+                  } else {
                     if (!this.Rules[i].includes(stemp)) {
                       this.Rules[i].push(stemp);
                     }
@@ -228,6 +316,7 @@ export class HomePage implements OnInit {
           }
         }
         this.Rules[rulenum] = rule
+        this.Rules[rulenum] = Array.from(new Set(this.Rules[rulenum]));
         this.cRules[rulenum] = this.Rules[rulenum].join("|");
         this.patchForm();
         this.check();
@@ -237,15 +326,16 @@ export class HomePage implements OnInit {
         var rule = this.Rules[rulenum];
         for (let i = 0; i < rule.length; i++) {
           if (rule[i].length > 2) {
-              var newChars = rule[i].slice(-2)
-              const tempVar = this.newRule(newChars)
-              var sArr = [...rule[i]]
-              sArr.splice(-2, 2)
-              rule[i] = sArr.join("");
-              rule[i] = rule[i].concat(tempVar)
+            var newChars = rule[i].slice(-2)
+            const tempVar = this.newRule(newChars)
+            var sArr = [...rule[i]]
+            sArr.splice(-2, 2)
+            rule[i] = sArr.join("");
+            rule[i] = rule[i].concat(tempVar)
           }
         }
         this.Rules[rulenum] = rule
+        this.Rules[rulenum] = Array.from(new Set(this.Rules[rulenum]));
         this.cRules[rulenum] = this.Rules[rulenum].join("|");
         this.patchForm();
         this.check();
@@ -253,6 +343,7 @@ export class HomePage implements OnInit {
     }
   }
 
+  //Funcion para saber que letra del Alfabeta aun esta disponible 
   checkVarExists(extraChars: string): string {
     for (let i = 0; i < this.Rules.length; i++) {
       if (this.Rules[i] != null) {
@@ -269,41 +360,59 @@ export class HomePage implements OnInit {
     return null
   }
 
+  //Crea las nuevas reglas extra que se pueden llegar a necesitar en los pasos 4 y 5 
   newRule(extraChars: string): string {
     const check = this.checkVarExists(extraChars)
     if (check == null) {
       const newVar = this.alphabet.shift();
       this.extraVars.push(newVar);
       this.extraRules.push(extraChars);
+      this.printExtraRules[0].push(newVar);
+      this.printExtraRules[1].push(extraChars);
+      this.printExtraRules[2].push(this.printExtraRules[0].length - 1)
+      console.log(this.printExtraRules)
       return newVar
     } else {
       return check
     }
   }
 
+  //Cambia el step actual y luego realiza un check para saber en que reglas se puede alpicar el current step
   continue() {
     this.step += 1
     this.check()
   }
 
+  //Reset de todos los campos y variables
   reset(hard: boolean) {
-    if (hard) {
-      this.eraseForm();
-    }
+    this.msg[0] = "Usa los botones laterales para activar o desactivar la regla indicada. Presiona start para comenzar.";
+    this.msg[1] = "";
+    this.msg[2] = "";
     this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     this.Rules = [[]];
     this.cRules = [""];
     this.Vars = [""];
     this.extraRules = [];
     this.extraVars = [""];
-    this.Buttons = [true, true, true, true, true, true];
-    this.inputs = false;
+    this.printExtraRules = [[""], [""], []];
+    this.Buttons = [true, true, false, false, false, false];
+    this.inputs = [false, true, true, true, true];
     this.breset = true;
     this.bcontinue = true;
     this.bstart = false;
     this.step = 0;
+    for (let i = 0; i < this.controls.length / 2; i++) {
+      this.controls[i].setValidators([Validators.pattern('[A-Z]'), Validators.maxLength(1)]);
+      this.controls[i + 4].setValidators(null);
+      this.controls[i].updateValueAndValidity;
+      this.controls[i + 4].updateValueAndValidity;
+    }
+    if (hard) {
+      this.eraseForm();
+    }
   }
 
+  //Revisa en que reglas se pueden aplicar los pasos 
   check() {
     switch (this.step) {
       case 2:
@@ -350,21 +459,60 @@ export class HomePage implements OnInit {
         }
         break;
       case 5:
+        var finish = true;
+        this.bcontinue = true;
         for (let i = 0; i < this.Rules.length; i++) {
           this.Buttons[i] = true;
           if (this.Rules[i] != null) {
             for (let j = 0; j < this.Rules[i].length; j++) {
               if (this.Rules[i][j].length > 2) {
                 this.Buttons[i] = false;
-                this.bcontinue = true;
+                finish = false;
               }
             }
           }
+        }
+        if (finish) {
+          this.presentAlert('Fin del proceso', 'Su gramatica esta en su Forma Normal de Chomsky');
         }
         break;
     }
   }
 
+  //Alerts que muestran las descripciones de los pasos a seguir 
+  alertSwitch(step: number) {
+    var title = ""
+    var body = ""
+    switch (step) {
+      case 1:
+        title = 'Paso 1'
+        body = 'Agregamos una nueva variable inical S0 y la regla S0 produce S'
+        this.presentAlert(title, body);
+        break;
+      case 2:
+        title = 'Paso 2'
+        body = 'Removemos las reglas que producen cadena vacia del tipo A -> µ donde A no es la variable inicial. Despues para cada occurencia de la variable A del lado derecho de una regla, agregamos una nueva regla con la ocurrencia borrada.'
+        this.presentAlert(title, body);
+        break;
+      case 3:
+        title = 'Paso 3'
+        body = 'Removemos las reglas unitarias'
+        this.presentAlert(title, body);
+        break;
+      case 4:
+        title = 'Paso 4'
+        body = 'Convertimos las reglas restantes. Reemplazamos cada regla que contenga combinacion de Variables con terminales'
+        this.presentAlert(title, body);
+        break;
+      case 5:
+        title = 'Paso 5'
+        body = 'Finalmente cambiamos todas las reglas que contengan mas de 2 Variables creando nuevas variables'
+        this.presentAlert(title, body);
+        break;
+    }
+  }
+
+  //Funcion que crea las alertas
   async presentAlert(title: string, body: string) {
     const alert = await this.alertCtrl.create({
       header: title,

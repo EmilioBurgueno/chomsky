@@ -15,24 +15,31 @@
       </ion-col>
     </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <ion-label>Descripcion Paso</ion-label>
-      </ion-col>
-    </ion-row>
+    <div *ngFor="let message of msg">
+      <ion-row class="center">
+        <ion-col size="12">
+          <ion-label>{{ message }}</ion-label>
+        </ion-col>
+      </ion-row>
+    </div>
 
-    <ion-row>
-      <ion-col>
-        <ul class="instructions">
-          <li>Paso 1</li>
-          <li>Paso 2</li>
-          <li>Paso 3</li>
-          <li>Paso 4</li>
-          <li>Paso 5</li>
-          <li>Paso 6</li>
-        </ul>
-      </ion-col>
-    </ion-row>
+    <div *ngIf="step != 0" class="center">
+      <div class="center">
+        &middot;
+      </div>
+
+      <ion-row>
+        <ion-col size="12">
+          <ion-label>Descripcion del paso</ion-label>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col size="12">
+          <ion-button (click)="alertSwitch(step)">Paso {{ step }}</ion-button>
+        </ion-col>
+      </ion-row>
+    </div>
 
 
 
@@ -54,9 +61,9 @@
         <ion-col size="12">
           <ion-label position="fixed">Regla Inicial</ion-label>
           <ion-item class="ion-no-padding ion-no-margin">
-            <ion-input [disabled]="inputs" formControlName="Var1" class="vars"></ion-input>
+            <ion-input [disabled]="inputs[0]" formControlName="Var1" class="vars"></ion-input>
             <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
-            <ion-input [disabled]="inputs" formControlName="Rule1"></ion-input>
+            <ion-input [disabled]="inputs[0]" formControlName="Rule1"></ion-input>
             <ion-button [disabled]="Buttons[1]" slot="end" (click)="apply(1)">Regla 1</ion-button>
           </ion-item>
         </ion-col>
@@ -66,9 +73,9 @@
         <ion-col size="12">
           <ion-label position="fixed">Regla 2</ion-label>
           <ion-item class="ion-no-padding ion-no-margin">
-            <ion-input [disabled]="inputs" formControlName="Var2" class="vars"></ion-input>
+            <ion-input [disabled]="inputs[1]" formControlName="Var2" class="vars"></ion-input>
             <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
-            <ion-input [disabled]="inputs" formControlName="Rule2"></ion-input>
+            <ion-input [disabled]="inputs[1]" formControlName="Rule2"></ion-input>
             <ion-button [disabled]="Buttons[2]" slot="end" (click)="apply(2)">Regla 2</ion-button>
           </ion-item>
         </ion-col>
@@ -78,9 +85,9 @@
         <ion-col size="12">
           <ion-label position="fixed">Regla 3</ion-label>
           <ion-item class="ion-no-padding ion-no-margin">
-            <ion-input [disabled]="inputs" formControlName="Var3" class="vars"></ion-input>
+            <ion-input [disabled]="inputs[2]" formControlName="Var3" class="vars"></ion-input>
             <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
-            <ion-input [disabled]="inputs" formControlName="Rule3"></ion-input>
+            <ion-input [disabled]="inputs[2]" formControlName="Rule3"></ion-input>
             <ion-button [disabled]="Buttons[3]" slot="end" (click)="apply(3)">Regla 3</ion-button>
           </ion-item>
         </ion-col>
@@ -90,9 +97,9 @@
         <ion-col size="12">
           <ion-label position="fixed">Regla 4</ion-label>
           <ion-item class="ion-no-padding ion-no-margin">
-            <ion-input [disabled]="inputs" formControlName="Var4" class="vars"></ion-input>
+            <ion-input [disabled]="inputs[3]" formControlName="Var4" class="vars"></ion-input>
             <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
-            <ion-input [disabled]="inputs" formControlName="Rule4"></ion-input>
+            <ion-input [disabled]="inputs[3]" formControlName="Rule4"></ion-input>
             <ion-button [disabled]="Buttons[4]" slot="end" (click)="apply(4)">Regla 4</ion-button>
           </ion-item>
         </ion-col>
@@ -103,28 +110,39 @@
         <ion-col size="12">
           <ion-label position="fixed">Regla 5</ion-label>
           <ion-item class="ion-no-padding ion-no-margin">
-            <ion-input [disabled]="inputs" formControlName="Var5" class="vars"></ion-input>
+            <ion-input [disabled]="inputs[4]" formControlName="Var5" class="vars"></ion-input>
             <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
-            <ion-input [disabled]="inputs" formControlName="Rule5"></ion-input>
+            <ion-input [disabled]="inputs[4]" formControlName="Rule5"></ion-input>
             <ion-button [disabled]="Buttons[5]" slot="end" (click)="apply(5)">Regla 5</ion-button>
           </ion-item>
         </ion-col>
       </ion-row>
+    </form>
 
+    <div *ngFor="let index of printExtraRules[2]">
       <ion-row>
-        <ion-col size="4">
-          <ion-button [disabled]="breset" expand="block" (click)="reset(true)">RESET</ion-button>
-        </ion-col>
-        <ion-col size="4" class="arrow">
-          <ion-button [disabled]="bstart" type="submit" expand="block" (click)="onSubmit()">START</ion-button>
-        </ion-col>
-        <ion-col size="4">
-          <ion-button [disabled]="bcontinue" expand="block" (click)="continue()">CONTINUE</ion-button>
+        <ion-col size="12">
+          <ion-label position="fixed">Regla Extra</ion-label>
+          <ion-item class="ion-no-padding ion-no-margin">
+            <ion-input disabled class="vars">{{printExtraRules[0][index]}}</ion-input>
+            <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
+            <ion-input disabled>{{printExtraRules[1][index]}}</ion-input>
+          </ion-item>
         </ion-col>
       </ion-row>
+    </div>
 
-    </form>
-    <!-- <ion-label>patchform , cambiar valor de la forma hacer un patchform y actualizar la forma y eso hace que se actualice el valor del input</ion-label></ion-label>
-   -->
+    <ion-row>
+      <ion-col size="4">
+        <ion-button [disabled]="breset" expand="block" (click)="reset(true)">REINICIAR</ion-button>
+      </ion-col>
+      <ion-col size="4" class="arrow">
+        <ion-button [disabled]="bstart" type="submit" expand="block" (click)="onSubmit()">INICIO</ion-button>
+      </ion-col>
+      <ion-col size="4">
+        <ion-button [disabled]="bcontinue" expand="block" (click)="continue()">CONTINUE</ion-button>
+      </ion-col>
+    </ion-row>
+
   </ion-grid>
 </ion-content>
