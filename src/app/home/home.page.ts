@@ -406,6 +406,7 @@ export class HomePage implements OnInit {
     this.printExtraRules = [[""], [""], []];
     this.Buttons = [true, true, false, false, false, false];
     this.inputs = [false, true, true, true, true];
+    this.required = [false, false, false, false];
     this.breset = true;
     this.bcontinue = true;
     this.bstart = false;
