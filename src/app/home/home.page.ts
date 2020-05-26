@@ -29,6 +29,7 @@ export class HomePage implements OnInit {
   extraVars = [""] as string[];
   printExtraRules = [[""], [""], []] as [string[], string[], number[]];
 
+  //Inicializar los controles para poder cambiar la validación
   controls = [] as AbstractControl[];
   required = [false, false, false, false] as boolean[];
 
@@ -146,12 +147,14 @@ export class HomePage implements OnInit {
       const v4 = this.rulesForm.controls.Var4.value as string;
       const v5 = this.rulesForm.controls.Var5.value as string;
 
+      //Configuración de los botones e inputs
       this.breset = false;
       this.bstart = true;
       this.Buttons = [false, true, true, true, true, true];
       this.inputs = [true, true, true, true, true];
       this.step = 1;
 
+      //Configuración de los arreglos y datos a manipular
       this.msg = "Usa los botones laterales para interactuar con las reglas./nHaz click en el boton de descripción para saber que se esta haciendo en este paso./nUsa los botones inferiores para continuar o empezar desde 0".split("/n");
       const rules = [null, rule1, rule2, rule3, rule4, rule5];
       this.Vars = ["", v1, v2, v3, v4, v5]
@@ -167,6 +170,7 @@ export class HomePage implements OnInit {
         } else {
           this.Rules.push(null);
         }
+        //Revisar que no hay variables repetidas
         if (this.Vars[i] != null && this.Vars[i] != "") {
           if (this.alphabet.includes(this.Vars[i])) {
             var ri = this.alphabet.indexOf(this.Vars[i]);
@@ -182,11 +186,11 @@ export class HomePage implements OnInit {
     }
   }
 
-
   //Aplica las operaciones necesarias para cada paso , separadas en cases para cada paso
   apply(rulenum: number) {
     switch (this.step) {
       case 0:
+        //Los cambios de validación de la forma de las reglas
         this.required[rulenum - 2] = !this.required[rulenum - 2];
         if (this.required[rulenum - 2]) {
           this.controls[rulenum + 2].setValidators([Validators.required, Validators.pattern('[A-Z]'), Validators.maxLength(1)]);
@@ -206,6 +210,7 @@ export class HomePage implements OnInit {
         this.pseudoPatchForm();
         break;
       case 1:
+        //Generar la nueva variable inicial
         this.Vars[0] = "S0";
         this.Rules[0] = [this.Vars[1]];
         this.cRules[0] = this.Vars[1];
@@ -213,28 +218,34 @@ export class HomePage implements OnInit {
         this.bcontinue = false;
         break;
       case 2:
+        //Buscar las cadenas vacias
         var vari = this.Vars[rulenum];
         var rule = this.Rules[rulenum];
         const lambda = rule.indexOf("µ");
         rule.splice(lambda, 1)
+        //Iterar sobre todas las reglas
         for (let i = 0; i < this.Rules.length; i++) {
           this.cRules[i] = ""
           if (this.Rules[i] != null) {
+            //Iterar sobre cada conjunto de reglas
             for (let j = 0; j < this.Rules[i].length; j++) {
               if (this.Rules[i][j].includes(vari)) {
                 const temp = this.Rules[i][j].split("");
                 var tVIAll = new Array<number>();
+                //Buscar cada posicion de la variable que tiene cadena vacia
                 for (let k = 0; k < temp.length; k++) {
                   if (temp[k] == vari) {
                     tVIAll.push(k);
                   }
                 }
                 const count = tVIAll.length;
+                //Transformar el valor de la cantidad de instancias de la variable buscada en un numero binario
                 for (let k = 0; k < (2 ** count) - 1; k++) {
                   var bcount = k.toString(2);
                   bcount = '0'.repeat(count - bcount.length) + bcount
                   var ntemp = this.Rules[i][j].split("");
                   let shift = 0
+                  //Tomar cada 0 como eliminar la variable y cada 1 como dejar la variable
                   for (let l = 0; l < bcount.length; l++) {
                     if (bcount[l] == '0') {
                       ntemp.splice(tVIAll[l] - shift, 1);
@@ -242,6 +253,7 @@ export class HomePage implements OnInit {
                     }
                   }
                   var stemp = ntemp.join("");
+                  //Checar si ya existe la reglaa a ingresar y si poner la cadena vacia de acuero a la regla actual
                   if (stemp == "") {
                     if (this.Vars[i] != vari) {
                       if (!this.Rules[i].includes("µ")) {
@@ -263,13 +275,16 @@ export class HomePage implements OnInit {
         this.check();
         break;
       case 3:
+        //Encuentra las reglas que sea unitarias
         var vari = this.Vars[rulenum];
         var rule = this.Rules[rulenum];
         this.cRules[rulenum] = ""
         var pass = true;
         for (let i = 0; i < rule.length; i++) {
+          //Aqui checa que sea unitarias y con mayusculas
           if (rule[i].length == 1 && rule[i] === rule[i].toUpperCase() && rule[i] !== rule[i].toLowerCase() && pass) {
             if (rule[i] !== vari) {
+              //Itera otra vez por las reglas para ver si ya existe
               for (let k = 0; k < this.Rules.length; k++) {
                 if (this.Rules[k] !== null) {
                   if (this.Vars[k] == rule[i]) {
@@ -294,9 +309,11 @@ export class HomePage implements OnInit {
       case 4:
         var vari = this.Vars[rulenum];
         var rule = this.Rules[rulenum];
+        //Iterar sobre el conjunto de reglas seleccionado
         for (let i = 0; i < rule.length; i++) {
           if (rule[i].length != 1) {
             var sArr = [...rule[i]]
+            //Buscar si una cadena de longitud mayor a 1 tiene terminales
             for (let j = 0; j < sArr.length; j++) {
               if (sArr[j] == sArr[j].toLowerCase()) {
                 sArr[j] = this.newRule(rule[i][j]);
@@ -314,7 +331,9 @@ export class HomePage implements OnInit {
       case 5:
         var vari = this.Vars[rulenum];
         var rule = this.Rules[rulenum];
+        //Iteramos sobre todas las reglas para ver cuales tienen una longitud mayor a 2 
         for (let i = 0; i < rule.length; i++) {
+          //Se toman los ultimos dos caracteres , se crean en una nueva regla si no existen y se concatena la nueva regla
           if (rule[i].length > 2) {
             var newChars = rule[i].slice(-2)
             const tempVar = this.newRule(newChars)
@@ -407,6 +426,7 @@ export class HomePage implements OnInit {
     switch (this.step) {
       case 2:
         this.bcontinue = false;
+        //Itera sobre todas las reglas (menos la inicial) para buscar si hay una regla de tipo A -> µ
         for (let i = 1; i < this.Rules.length; i++) {
           this.Buttons[i] = true;
           if (this.Rules[i] != null && this.Rules[i].includes('µ')) {
@@ -417,6 +437,7 @@ export class HomePage implements OnInit {
         break;
       case 3:
         this.bcontinue = false;
+        //Itera sobre las reglas actuales y checar si es un solo caracter y si es mayuscula
         for (let i = 0; i < this.Rules.length; i++) {
           this.Buttons[i] = true;
           if (this.Rules[i] != null) {
@@ -431,6 +452,7 @@ export class HomePage implements OnInit {
         break;
       case 4:
         this.bcontinue = false;
+        //Itera sobre todas las reglas para buscar si alguna regla de longitud mayor a 2 tiene terminales
         for (let i = 0; i < this.Rules.length; i++) {
           this.Buttons[i] = true;
           if (this.Rules[i] != null) {
@@ -449,6 +471,7 @@ export class HomePage implements OnInit {
         }
         break;
       case 5:
+        //Iterar sobre las reglas y checar si tienen mas de dos caracteres
         var finish = true;
         this.bcontinue = true;
         for (let i = 0; i < this.Rules.length; i++) {
