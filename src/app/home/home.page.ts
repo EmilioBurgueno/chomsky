@@ -134,16 +134,6 @@ export class HomePage implements OnInit {
 
   //Aplicar la validacion a los campos y revisar si es correcto o no 
   onSubmit() {
-    console.log(this.rulesForm.controls.Rule1.valid)
-    console.log(this.rulesForm.controls.Rule2.valid)
-    console.log(this.rulesForm.controls.Rule3.valid)
-    console.log(this.rulesForm.controls.Rule4.valid)
-    console.log(this.rulesForm.controls.Rule5.valid)
-    console.log(this.rulesForm.controls.Var1.valid)
-    console.log(this.rulesForm.controls.Var2.valid)
-    console.log(this.rulesForm.controls.Var3.valid)
-    console.log(this.rulesForm.controls.Var4.valid)
-    console.log(this.rulesForm.controls.Var5.valid)
     if (this.rulesForm.valid) {
       const rule1 = this.rulesForm.controls.Rule1.value as string;
       const rule2 = this.rulesForm.controls.Rule2.value as string;
